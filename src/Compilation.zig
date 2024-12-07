@@ -1234,7 +1234,6 @@ fn addModuleTableToCacheHash(
 }
 
 pub fn create(gpa: Allocator, arena: Allocator, options: CreateOptions) !*Compilation {
-    std.log.info("Compilation.create(options={})", .{options});
     const output_mode = options.config.output_mode;
     const is_dyn_lib = switch (output_mode) {
         .Obj, .Exe => false,

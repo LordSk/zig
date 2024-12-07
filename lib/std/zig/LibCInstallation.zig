@@ -190,15 +190,10 @@ pub fn findNative(args: FindNativeOptions) FindError!LibCInstallation {
         };
         defer sdk.free(args.allocator);
 
-        log.err("findNativeMsvcIncludeDir", .{});
         try self.findNativeMsvcIncludeDir(args, sdk);
-        log.err("findNativeMsvcLibDir", .{});
         try self.findNativeMsvcLibDir(args, sdk);
-        log.err("findNativeKernel32LibDir", .{});
         try self.findNativeKernel32LibDir(args, sdk);
-        log.err("findNativeIncludeDirWindows", .{});
         try self.findNativeIncludeDirWindows(args, sdk);
-        log.err("findNativeCrtDirWindows", .{});
         try self.findNativeCrtDirWindows(args, sdk);
     } else if (is_haiku) {
         try self.findNativeIncludeDirPosix(args);
