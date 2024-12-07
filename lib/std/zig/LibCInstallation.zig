@@ -165,7 +165,6 @@ pub const FindNativeOptions = struct {
 
 /// Finds the default, native libc.
 pub fn findNative(args: FindNativeOptions) FindError!LibCInstallation {
-    log.err("{}", .{args});
     var self: LibCInstallation = .{};
 
     if (is_darwin and args.target.isDarwin()) {
