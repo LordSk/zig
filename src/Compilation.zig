@@ -1234,6 +1234,7 @@ fn addModuleTableToCacheHash(
 }
 
 pub fn create(gpa: Allocator, arena: Allocator, options: CreateOptions) !*Compilation {
+    std.log.info("Compilation.create(options={})", .{options});
     const output_mode = options.config.output_mode;
     const is_dyn_lib = switch (output_mode) {
         .Obj, .Exe => false,
@@ -1248,6 +1249,10 @@ pub fn create(gpa: Allocator, arena: Allocator, options: CreateOptions) !*Compil
     if (options.linker_export_table and options.linker_import_table) {
         return error.ExportTableAndImportTableConflict;
     }
+
+    // if (options.libc_installation) |_| {
+    //     @panic("doopsie~");
+    // }
 
     const have_zcu = options.config.have_zcu;
 

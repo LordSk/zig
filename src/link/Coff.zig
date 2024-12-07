@@ -1913,6 +1913,12 @@ fn linkWithLLD(coff: *Coff, arena: Allocator, tid: Zcu.PerThread.Id, prog_node: 
 
         if (comp.config.link_libc) {
             if (comp.libc_installation) |libc_installation| {
+                log.info("Coff.include_dir = {s}", .{ libc_installation.include_dir orelse "" });
+                log.info("Coff.sys_include_dir = {s}", .{ libc_installation.sys_include_dir orelse "" });
+                log.info("Coff.crt_dir = {s}", .{ libc_installation.crt_dir orelse "" });
+                log.info("Coff.msvc_lib_dir = {s}", .{ libc_installation.msvc_lib_dir orelse "" });
+                log.info("Coff.kernel32_lib_dir = {s}", .{ libc_installation.kernel32_lib_dir orelse "" });
+                log.info("Coff.gcc_dir = {s}", .{ libc_installation.gcc_dir orelse "" });
                 try argv.append(try allocPrint(arena, "-LIBPATH:{s}", .{libc_installation.crt_dir.?}));
 
                 if (target.abi == .msvc or target.abi == .itanium) {
@@ -1920,6 +1926,8 @@ fn linkWithLLD(coff: *Coff, arena: Allocator, tid: Zcu.PerThread.Id, prog_node: 
                     try argv.append(try allocPrint(arena, "-LIBPATH:{s}", .{libc_installation.kernel32_lib_dir.?}));
                 }
             }
+
+            // @panic("woopsie");
         }
 
         for (coff.lib_directories) |lib_directory| {

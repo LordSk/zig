@@ -165,6 +165,7 @@ pub const FindNativeOptions = struct {
 
 /// Finds the default, native libc.
 pub fn findNative(args: FindNativeOptions) FindError!LibCInstallation {
+    log.err("{}", .{args});
     var self: LibCInstallation = .{};
 
     if (is_darwin and args.target.isDarwin()) {
@@ -182,30 +183,35 @@ pub fn findNative(args: FindNativeOptions) FindError!LibCInstallation {
         });
         return self;
     } else if (is_windows) {
-        const sdk = std.zig.WindowsSdk.find(args.allocator) catch |err| switch (err) {
+        const sdk = std.zig.WindowsSdk.find(args.allocator, args.target) catch |err| switch (err) {
             error.NotFound => return error.WindowsSdkNotFound,
             error.PathTooLong => return error.WindowsSdkNotFound,
             error.OutOfMemory => return error.OutOfMemory,
         };
         defer sdk.free(args.allocator);
 
+        log.err("findNativeMsvcIncludeDir", .{});
         try self.findNativeMsvcIncludeDir(args, sdk);
+        log.err("findNativeMsvcLibDir", .{});
         try self.findNativeMsvcLibDir(args, sdk);
+        log.err("findNativeKernel32LibDir", .{});
         try self.findNativeKernel32LibDir(args, sdk);
+        log.err("findNativeIncludeDirWindows", .{});
         try self.findNativeIncludeDirWindows(args, sdk);
+        log.err("findNativeCrtDirWindows", .{});
         try self.findNativeCrtDirWindows(args, sdk);
     } else if (is_haiku) {
         try self.findNativeIncludeDirPosix(args);
         try self.findNativeGccDirHaiku(args);
         self.crt_dir = try args.allocator.dupeZ(u8, "/system/develop/lib");
-    } else if (builtin.target.os.tag.isSolarish()) {
+    } else if (args.target.os.tag.isSolarish()) {
         // There is only one libc, and its headers/libraries are always in the same spot.
         self.include_dir = try args.allocator.dupeZ(u8, "/usr/include");
         self.sys_include_dir = try args.allocator.dupeZ(u8, "/usr/include");
         self.crt_dir = try args.allocator.dupeZ(u8, "/usr/lib/64");
     } else if (std.process.can_spawn) {
         try self.findNativeIncludeDirPosix(args);
-        switch (builtin.target.os.tag) {
+        switch (args.target.os.tag) {
             .freebsd, .netbsd, .openbsd, .dragonfly => self.crt_dir = try args.allocator.dupeZ(u8, "/usr/lib"),
             .linux => try self.findNativeCrtDirPosix(args),
             else => {},
@@ -407,7 +413,7 @@ fn findNativeCrtDirWindows(
     var result_buf = std.ArrayList(u8).init(allocator);
     defer result_buf.deinit();
 
-    const arch_sub_dir = switch (builtin.target.cpu.arch) {
+    const arch_sub_dir = switch (args.target.cpu.arch) {
         .x86 => "x86",
         .x86_64 => "x64",
         .arm, .armeb => "arm",
@@ -474,7 +480,7 @@ fn findNativeKernel32LibDir(
     var result_buf = std.ArrayList(u8).init(allocator);
     defer result_buf.deinit();
 
-    const arch_sub_dir = switch (builtin.target.cpu.arch) {
+    const arch_sub_dir = switch (args.target.cpu.arch) {
         .x86 => "x86",
         .x86_64 => "x64",
         .arm, .armeb => "arm",

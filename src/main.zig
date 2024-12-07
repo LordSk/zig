@@ -3386,6 +3386,8 @@ fn buildOutputType(
     var file_system_inputs: std.ArrayListUnmanaged(u8) = .empty;
     defer file_system_inputs.deinit(gpa);
 
+    std.log.info("create_module.libc_installation={?}", .{create_module.libc_installation});
+
     const comp = Compilation.create(gpa, arena, .{
         .zig_lib_directory = zig_lib_directory,
         .local_cache_directory = local_cache_directory,
@@ -3949,9 +3951,27 @@ fn createModule(
                     fatal("unable to find native libc installation: {s}", .{@errorName(err)});
                 };
 
+                if (create_module.libc_installation) |libc_installation| {
+                    std.log.info("create_module.include_dir = {s}", .{ libc_installation.include_dir orelse "" });
+                    std.log.info("create_module.sys_include_dir = {s}", .{ libc_installation.sys_include_dir orelse "" });
+                    std.log.info("create_module.crt_dir = {s}", .{ libc_installation.crt_dir orelse "" });
+                    std.log.info("create_module.msvc_lib_dir = {s}", .{ libc_installation.msvc_lib_dir orelse "" });
+                    std.log.info("create_module.kernel32_lib_dir = {s}", .{ libc_installation.kernel32_lib_dir orelse "" });
+                    std.log.info("create_module.gcc_dir = {s}", .{ libc_installation.gcc_dir orelse "" });
+                }
+
                 try create_module.lib_directories.ensureUnusedCapacity(arena, 2);
                 addLibDirectoryWarn(&create_module.lib_directories, create_module.libc_installation.?.msvc_lib_dir.?);
                 addLibDirectoryWarn(&create_module.lib_directories, create_module.libc_installation.?.kernel32_lib_dir.?);
+            }
+
+            if (create_module.libc_installation) |libc_installation| {
+                std.log.info("create_module.include_dir = {s}", .{ libc_installation.include_dir orelse "" });
+                std.log.info("create_module.sys_include_dir = {s}", .{ libc_installation.sys_include_dir orelse "" });
+                std.log.info("create_module.crt_dir = {s}", .{ libc_installation.crt_dir orelse "" });
+                std.log.info("create_module.msvc_lib_dir = {s}", .{ libc_installation.msvc_lib_dir orelse "" });
+                std.log.info("create_module.kernel32_lib_dir = {s}", .{ libc_installation.kernel32_lib_dir orelse "" });
+                std.log.info("create_module.gcc_dir = {s}", .{ libc_installation.gcc_dir orelse "" });
             }
         }
 
